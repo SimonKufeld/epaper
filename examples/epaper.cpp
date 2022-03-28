@@ -1,31 +1,11 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-// Should match with your epaper module, size
-//#include <gdep015OC1.h>  // 1.54 old version
 #include <gdeh0154d67.h>
-//#include "wave12i48.h"
-//#include <gdew042t2.h>  // Tested correctly 06.06.20
-//#include <gdew0583t7.h>
-//#include <gdew0213i5f.h>
-//#include <gdew027w3.h>
-//#include <gdeh0213b73.h>
-
-// Color
-//#include <gdew0583z21.h>
-//#include <gdeh042Z96.h>
-//#include <gdeh042Z21.h>
-// Multi-SPI 4 channels EPD only
-// Please note that in order to use this big buffer (160 Kb) on this display external memory should be used
-// Otherwise you will run out of DRAM very shortly!
-/* Epd4Spi io;
-Wave12I48 display(io); */
 
 // Single SPI EPD
 EpdSpi io;
-//Gdew075T7 display(io);
-//Gdep015OC1 display(io);
-Gdew0213i5f display(io);
+Gdeh0154d67 display(io);
 
 // FONT used for title / message body - Only after display library
 //Converting fonts with ümlauts: ./fontconvert *.ttf 18 32 252
@@ -69,11 +49,6 @@ void app_main(void)
    uint8_t rectW = display.width()/4; // For 11 is 37.
 
    uint16_t foregroundColor = EPD_WHITE;
-   // Make some rectangles showing the different colors or grays
-   if (display.colors_supported>1) {
-      printf("display.colors_supported:%d\n", display.colors_supported);
-      foregroundColor = EPD_RED;
-   }
    
    //return;
    display.fillScreen(EPD_WHITE);
