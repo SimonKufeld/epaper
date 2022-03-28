@@ -22,6 +22,22 @@ build_flags = -Wno-missing-field-initializers
               -Wno-error=unused-const-variable
               -Wno-unused-const-variable
 ```
+
+### Pin connection [example](https://www.az-delivery.de/en/blogs/azdelivery-blog-fur-arduino-und-raspberry-pi/e-paper-display-am-esp32-und-esp8266-teil-2)
+
+| EPD pins | ESP32 GPIO |
+|----------|------------|
+| Busy     | 27         |
+| RST      | 33         |
+| DC       | 25         |
+| CS       | 26         |
+| CLK      | SCK = 18   |
+| DIN      | MOSI = 23  |
+| GND      | GND        |
+| 3.3V     | 3.3V       |
+
+Adapt it to your liking in file **src/epdspi.cpp**.
+
 ### Build binary and flash onto controller (and monitor logging)
 With platformio installed, copy **examples/ball.cpp** into **src/** folder and run command:
 
