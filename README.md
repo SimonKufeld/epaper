@@ -44,3 +44,11 @@ With platformio installed, copy **examples/ball.cpp** into **src/** folder and r
 ```bash
 pio run -t upload -t monitor -e "az-delivery-devkit-v4"
 ```
+
+### Create Bitmap via https://diyusthad.com/image2cpp 
+Background color: Black
+Invert colors [x]
+Brightness threshold: 1
+Center: horizontally
+Code output format: plain bytes
+Draw mode: Horizontal
