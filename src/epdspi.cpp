@@ -11,11 +11,15 @@
 #define CONFIG_EINK_BUSY   27
 #define CONFIG_EINK_SPI_MOSI 23
 #define CONFIG_EINK_SPI_CLK  18
+#if CONFIG_LOG_DEFAULT_LEVEL == 5 || CONFIG_LOG_DEFAULT_LEVEL_DEBUG
+    debug_enabled=true
+#endif
 
 static const char *TAG = "SPI IO";
 
+
 void EpdSpi::init(uint8_t frequency=4,bool debug=false){
-    debug_enabled = debug;
+    //debug_enabled = debug; // superseded by ESP LOG
 
     //Initialize GPIOs direction & initial states
     gpio_set_direction((gpio_num_t)CONFIG_EINK_SPI_CS, GPIO_MODE_OUTPUT);
@@ -64,14 +68,10 @@ void EpdSpi::init(uint8_t frequency=4,bool debug=false){
     //Attach the EPD to the SPI bus
     ret=spi_bus_add_device(EPD_HOST, &devcfg, &spi);
     ESP_ERROR_CHECK(ret);
-    
-    if (debug_enabled) {
-      printf("EpdSpi::init() Debug enabled. SPI master at frequency:%d  MOSI:%d CLK:%d CS:%d DC:%d RST:%d BUSY:%d DMA_CH: %d\n",
-      frequency*multiplier*1000, CONFIG_EINK_SPI_MOSI, CONFIG_EINK_SPI_CLK, CONFIG_EINK_SPI_CS,
-      CONFIG_EINK_DC,CONFIG_EINK_RST,CONFIG_EINK_BUSY, DMA_CHAN);
-        } else {
-           printf("EpdSPI started at frequency: %d000\n", frequency*multiplier);
-        }
+    ESP_LOGD(TAG, "EpdSpi::init() Debug enabled. SPI master at frequency:%d  MOSI:%d CLK:%d CS:%d DC:%d RST:%d BUSY:%d DMA_CH: %d\n",
+             frequency*multiplier*1000, CONFIG_EINK_SPI_MOSI, CONFIG_EINK_SPI_CLK, CONFIG_EINK_SPI_CS,
+             CONFIG_EINK_DC,CONFIG_EINK_RST,CONFIG_EINK_BUSY, DMA_CHAN);
+    ESP_LOGI(TAG, "EpdSPI started at frequency: %d000\n", frequency*multiplier);    
     }
 
 /* Send a command to the LCD. Uses spi_device_polling_transmit, which waits
