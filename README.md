@@ -1,4 +1,3 @@
-### TODO: Migrate from printf debug messages to LOGI/LOGD ESP LOGGING
 ### Library to control an E-Paper [Waveshare 1.54 inch V2](https://www.waveshare.com/wiki/1.54inch_e-Paper_Module)  through the ESP-IDF build pipeline
 This library is based on the work of [Martin](https://github.com/martinberlin) in
 [cale-idf](https://github.com/martinberlin/cale-idf).
