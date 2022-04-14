@@ -13,6 +13,8 @@
 #define CONFIG_EINK_SPI_CLK  18
 #if CONFIG_LOG_DEFAULT_LEVEL == 5 || CONFIG_LOG_DEFAULT_LEVEL_DEBUG
     debug_enabled=true
+#else
+    debug_enabled=false
 #endif
 
 static const char *TAG = "SPI IO";
