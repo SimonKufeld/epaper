@@ -8,6 +8,14 @@
 #define GDEH0154D67_PU_DELAY 300
 #define CONFIG_EINK_BUSY 27
 
+#if CONFIG_LOG_DEFAULT_LEVEL == 5 || CONFIG_LOG_DEFAULT_LEVEL_DEBUG
+    debug_enabled=true
+#else
+    debug_enabled=false
+#endif
+      
+static const char *TAG = "ePaper Controller";
+
 // Constructor
 Gdeh0154d67::Gdeh0154d67(EpdSpi& dio): 
   Adafruit_GFX(GDEH0154D67_WIDTH, GDEH0154D67_HEIGHT),
@@ -21,24 +29,24 @@ void Gdeh0154d67::initFullUpdate(){
     _wakeUp();
     _partial_mode = false;
     _PowerOn();
-    if (debug_enabled) printf("initFullUpdate()\n");
+    ESP_LOGD(TAG, "initFullUpdate()\n");
 }
 
 void Gdeh0154d67::initPartialUpdate(){
     _partial_mode = true;
     _wakeUp();
     _PowerOn();
-    if (debug_enabled) printf("initPartialUpdate()\n");
+    ESP_LOGD(TAG, "initPartialUpdate()\n");
 }
 
 //Initialize the display
 void Gdeh0154d67::init(bool debug)
 {
-    debug_enabled = debug;
-    if (debug_enabled) printf("Gdeh0154d67::init(%d)\n", debug);
+    debug_enabled = debug; // superseded by ESP_LOG
+    ESP_LOGD(TAG, "Gdeh0154d67::init\n");
     IO.init(4, debug); // 4MHz frequency
-
-    printf("Free heap:%d\n",xPortGetFreeHeapSize());
+    
+    ESP_LOGD(TAG, "Free heap:%d\n",xPortGetFreeHeapSize());
     fillScreen(EPD_WHITE);
 }
 
@@ -50,8 +58,7 @@ void Gdeh0154d67::fillScreen(uint16_t color)
   {
     _buffer[x] = data;
   }
-
-  if (debug_enabled) printf("fillScreen(%d) _buffer len:%d\n",data,sizeof(_buffer));
+  ESP_LOGD(TAG, "fillScreen(%d) _buffer len:%d\n", data, sizeof(_buffer));
 }
 
 void Gdeh0154d67::_setPartialRamArea(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
@@ -98,7 +105,7 @@ void Gdeh0154d67::update()
   initFullUpdate();
   _using_partial_mode = false;
   _initial_refresh = true;
-  printf("BUFF Size:%d\n",sizeof(_buffer));
+  ESP_LOGI(TAG, "BUFF Size:%d\n",sizeof(_buffer));
 
   IO.cmd(0x24);        // update current data
   for (uint16_t y = 0; y < GDEH0154D67_HEIGHT; y++)
@@ -119,8 +126,8 @@ void Gdeh0154d67::update()
 
   uint64_t updateTime = esp_timer_get_time();
 
-  printf("\n\nSTATS (ms)\n%llu _wakeUp settings+send Buffer\n%llu update \n%llu total time in millis\n",
-         (endTime - startTime) / 1000, (updateTime - endTime) / 1000, (updateTime - startTime) / 1000);
+  ESP_LOGD(TAG, "\n\nSTATS (ms)\n%llu _wakeUp settings+send Buffer\n%llu update \n%llu total time in millis\n",
+          (endTime - startTime) / 1000, (updateTime - endTime) / 1000, (updateTime - startTime) / 1000);
 
 
   _sleep();
@@ -188,16 +195,16 @@ void Gdeh0154d67::updateWindow(int16_t x, int16_t y, int16_t w, int16_t h, bool 
 {
   if (using_rotation) _rotate(x, y, w, h);
   if (x >= WIDTH) {
-    printf("x:%d exceeded boundary %d\n",x,WIDTH);
+    ESP_LOGE(TAG, "x:%d exceeded boundary %d\n",x,WIDTH);
     return;
   }
   if (y >= HEIGHT) {
-    printf("y:%d exceeded boundary %d\n",y,HEIGHT);
+    ESP_LOGE(TAG, "y:%d exceeded boundary %d\n",y,HEIGHT);
     return;
   }
 
   if (!_initial_refresh) {
-    printf("updateWindow() doing initial refresh\n");
+    ESP_LOGE(TAG, "updateWindow() doing initial refresh\n");
     update();
   }
   uint64_t startTime = esp_timer_get_time();
@@ -248,17 +255,13 @@ void Gdeh0154d67::updateWindow(int16_t x, int16_t y, int16_t w, int16_t h, bool 
     IO.data(x1cbuf, sizeof(x1cbuf));
   }
   
-  if (debug_enabled) {
-    uint64_t cleanTime = esp_timer_get_time();
-    printf("\n\nSTATS (ms)\n%llu _wakeUp settings+send Buffer\n%llu update \nclean_buffer:%llu\n%llu total time in millis\n",
+  uint64_t cleanTime = esp_timer_get_time();
+  ESP_LOGD(TAG, "\n\nSTATS (ms)\n%llu _wakeUp settings+send Buffer\n%llu update \nclean_buffer:%llu\n%llu total time in millis\n",
          (endTime - startTime) / 1000, (updateTime - endTime) / 1000, (cleanTime - updateTime) / 1000, (cleanTime - startTime) / 1000);
-  }
 }
   
 void Gdeh0154d67::_waitBusy(const char* message, uint16_t busy_time){
-  if (debug_enabled) {
-    ESP_LOGI(TAG, "_waitBusy for %s", message);
-  }
+  ESP_LOGI(TAG, "_waitBusy for %s", message);
   int64_t time_since_boot = esp_timer_get_time();
   // On high is busy
   if (gpio_get_level((gpio_num_t)CONFIG_EINK_BUSY) == 1) {
@@ -267,7 +270,7 @@ void Gdeh0154d67::_waitBusy(const char* message, uint16_t busy_time){
     vTaskDelay(1);
     if (esp_timer_get_time()-time_since_boot>7000000)
     {
-      if (debug_enabled) ESP_LOGI(TAG, "Busy Timeout");
+      ESP_LOGI(TAG, "Busy Timeout");
       break;
     }
   }
@@ -277,9 +280,7 @@ void Gdeh0154d67::_waitBusy(const char* message, uint16_t busy_time){
 }
 
 void Gdeh0154d67::_waitBusy(const char* message){
-  if (debug_enabled) {
-    ESP_LOGI(TAG, "_waitBusy for %s", message);
-  }
+  ESP_LOGI(TAG, "_waitBusy for %s", message);
   int64_t time_since_boot = esp_timer_get_time();
 
   while (1){
@@ -288,7 +289,7 @@ void Gdeh0154d67::_waitBusy(const char* message){
     vTaskDelay(1);
     if (esp_timer_get_time()-time_since_boot>7000000)
     {
-      if (debug_enabled) ESP_LOGI(TAG, "Busy Timeout");
+      ESP_LOGI(TAG, "Busy Timeout");
       break;
     }
   }
