@@ -42,7 +42,7 @@ void Gdeh0154d67::initPartialUpdate(){
 //Initialize the display
 void Gdeh0154d67::init(bool debug)
 {
-    debug_enabled = debug; // superseded by ESP_LOG
+    //debug_enabled = debug; superseded by ESP_LOG
     ESP_LOGD(TAG, "Gdeh0154d67::init\n");
     IO.init(4, debug); // 4MHz frequency
     
