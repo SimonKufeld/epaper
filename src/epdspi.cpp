@@ -12,6 +12,8 @@
 #define CONFIG_EINK_SPI_MOSI 23
 #define CONFIG_EINK_SPI_CLK  18
 
+static const char *TAG = "SPI IO";
+
 void EpdSpi::init(uint8_t frequency=4,bool debug=false){
     debug_enabled = debug;
 
@@ -81,9 +83,7 @@ void EpdSpi::init(uint8_t frequency=4,bool debug=false){
  */
 void EpdSpi::cmd(const uint8_t cmd)
 {
-    if (debug_enabled) {
-        printf("C %x\n",cmd);
-    } 
+    ESP_LOGD(TAG, "C %x\n", cmd); //debug_enabled
 
     esp_err_t ret;
     spi_transaction_t t;
@@ -102,9 +102,8 @@ void EpdSpi::cmd(const uint8_t cmd)
 
 void EpdSpi::data(uint8_t data)
 {
-    /* if (debug_enabled) {
-      printf("D %x\n",data);
-    } */
+    ESP_LOGD(TAG, "D %x\n",data);
+
     esp_err_t ret;
     spi_transaction_t t;
     memset(&t, 0, sizeof(t));       //Zero out the transaction
