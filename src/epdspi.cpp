@@ -134,13 +134,12 @@ void EpdSpi::dataBuffer(uint8_t data)
 void EpdSpi::data(const uint8_t *data, int len)
 {
   if (len==0) return; 
-    if (debug_enabled && false) {
-        printf("D\n");
-        for (int i = 0; i < len; i++)  {
-            printf("%x ",data[i]);
-        }
-        printf("\n");
+    ESP_LOGD(TAG, "D\n");
+    for (int i = 0; i < len; i++)  {
+        ESP_LOGD(TAG, "%x ",data[i]);
     }
+    ESP_LOGD(TAG, "\n");
+
     esp_err_t ret;
     spi_transaction_t t;
                 
